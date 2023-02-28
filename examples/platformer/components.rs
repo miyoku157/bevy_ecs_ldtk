@@ -171,6 +171,7 @@ impl LdtkEntity for Patrol {
         entity_instance: &EntityInstance,
         layer_instance: &LayerInstance,
         _: Option<&Handle<Image>>,
+        _: &mut Option<Handle<TextureAtlas>>,
         _: Option<&TilesetDefinition>,
         _: &AssetServer,
         _: &mut Assets<TextureAtlas>,

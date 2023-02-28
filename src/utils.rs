@@ -6,7 +6,7 @@ use crate::{
     components::{GridCoords, IntGridCell},
 };
 
-use crate::{components::TileGridBundle, ldtk::*};
+use crate::{components::TileGridBundle, ldtk::*, AtlasMap};
 use bevy::prelude::*;
 use bevy_ecs_tilemap::{
     map::{TilemapId, TilemapSize},
@@ -312,21 +312,26 @@ where
 pub fn sprite_sheet_bundle_from_entity_info(
     entity_instance: &EntityInstance,
     tileset: Option<&Handle<Image>>,
+    atlas: &mut Option<Handle<TextureAtlas>>,
     tileset_definition: Option<&TilesetDefinition>,
     texture_atlases: &mut Assets<TextureAtlas>,
     grid: bool,
 ) -> SpriteSheetBundle {
     match (tileset, &entity_instance.tile, tileset_definition) {
         (Some(tileset), Some(tile), Some(tileset_definition)) => SpriteSheetBundle {
-            texture_atlas: if grid {
-                texture_atlases.add(TextureAtlas::from_grid(
+            texture_atlas: if let Some(current_atlas) = atlas {
+                texture_atlases.get_handle(current_atlas.clone())
+            } else if grid {
+                let new_atlas = texture_atlases.add(TextureAtlas::from_grid(
                     tileset.clone(),
                     Vec2::new(tile.w as f32, tile.h as f32),
                     tileset_definition.c_wid as usize,
                     tileset_definition.c_hei as usize,
                     Some(Vec2::splat(tileset_definition.spacing as f32)),
                     Some(Vec2::splat(tileset_definition.padding as f32)),
-                ))
+                ));
+                *atlas = Some(new_atlas.clone());
+                new_atlas
             } else {
                 let mut texture_atlas = TextureAtlas::new_empty(
                     tileset.clone(),
@@ -341,7 +346,9 @@ pub fn sprite_sheet_bundle_from_entity_info(
                     (tile.x + tile.w) as f32,
                     (tile.y + tile.h) as f32,
                 ));
-                texture_atlases.add(texture_atlas)
+                let new_atlas = texture_atlases.add(texture_atlas);
+                *atlas = Some(new_atlas.clone());
+                new_atlas
             },
             sprite: if grid {
                 TextureAtlasSprite {

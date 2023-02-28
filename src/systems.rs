@@ -10,6 +10,7 @@ use crate::{
     level::spawn_level,
     resources::{LdtkSettings, LevelEvent, LevelSelection, LevelSpawnBehavior},
     utils::*,
+    AtlasMap,
 };
 
 use bevy::{ecs::system::SystemState, prelude::*};
@@ -237,6 +238,7 @@ pub fn process_ldtk_levels(
     mut level_events: EventWriter<LevelEvent>,
     ldtk_settings: Res<LdtkSettings>,
 ) {
+    let mut atlas_map: AtlasMap = HashMap::new();
     for (ldtk_entity, level_handle, parent, respawn, children) in level_query.iter() {
         // Checking if the level has any children is an okay method of checking whether it has
         // already been processed.
@@ -281,6 +283,7 @@ pub fn process_ldtk_levels(
                             &entity_definition_map,
                             &layer_definition_map,
                             &ldtk_asset.tileset_map,
+                            &mut atlas_map,
                             &tileset_definition_map,
                             worldly_set,
                             ldtk_entity,

@@ -18,6 +18,7 @@ fn ldtk_path_to_asset_path<'b>(ldtk_path: &Path, rel_path: &str) -> AssetPath<'b
 
 /// Used in [LdtkAsset]. Key is the tileset definition uid.
 pub type TilesetMap = HashMap<i32, Handle<Image>>;
+pub type AtlasMap = HashMap<i32, Option<Handle<TextureAtlas>>>;
 
 /// Used in [LdtkAsset]. Key is the level iid.
 pub type LevelMap = HashMap<String, Handle<LdtkLevel>>;

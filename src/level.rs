@@ -5,7 +5,7 @@ use crate::{
         LdtkEntity, LdtkEntityMap, LdtkIntCellMap, PhantomLdtkEntity, PhantomLdtkEntityTrait,
         PhantomLdtkIntCell, PhantomLdtkIntCellTrait,
     },
-    assets::{LdtkLevel, TilesetMap},
+    assets::{AtlasMap, LdtkLevel, TilesetMap},
     components::*,
     ldtk::{
         EntityDefinition, EnumTagValue, LayerDefinition, LayerInstance, LevelBackgroundPosition,
@@ -211,6 +211,7 @@ pub fn spawn_level(
     entity_definition_map: &HashMap<i32, &EntityDefinition>,
     layer_definition_map: &HashMap<i32, &LayerDefinition>,
     tileset_map: &TilesetMap,
+    atlas_map: &mut AtlasMap,
     tileset_definition_map: &HashMap<i32, &TilesetDefinition>,
     worldly_set: HashSet<Worldly>,
     ldtk_entity: Entity,
@@ -312,19 +313,33 @@ pub fn spawn_level(
                             );
                             // Note: entities do not seem to be affected visually by layer offsets in
                             // the editor, so no layer offset is added to the transform here.
+                            dbg!(&atlas_map);
+                            let (tileset, mut atlas, tileset_definition) =
+                                match &entity_instance.tile {
+                                    Some(t) => {
+                                        if !atlas_map.contains_key(&t.tileset_uid) {
+                                            atlas_map.insert(t.tileset_uid.clone(), None);
+                                        }
 
-                            let (tileset, tileset_definition) = match &entity_instance.tile {
-                                Some(t) => (
-                                    tileset_map.get(&t.tileset_uid),
-                                    tileset_definition_map.get(&t.tileset_uid).copied(),
-                                ),
-                                None => (None, None),
+                                        (
+                                            tileset_map.get(&t.tileset_uid),
+                                            atlas_map.get_mut(&t.tileset_uid),
+                                            tileset_definition_map.get(&t.tileset_uid).copied(),
+                                        )
+                                    }
+                                    None => (None, None, None),
+                                };
+                            let mut no_atlas: Option<Handle<TextureAtlas>> = None;
+                            let mut current_atlas = match atlas {
+                                Some(current_atlas) => current_atlas,
+                                _ => &mut no_atlas,
                             };
 
                             let predicted_worldly = Worldly::bundle_entity(
                                 entity_instance,
                                 layer_instance,
                                 tileset,
+                                &mut current_atlas,
                                 tileset_definition,
                                 asset_server,
                                 texture_atlases,
@@ -346,6 +361,7 @@ pub fn spawn_level(
                                     entity_instance,
                                     layer_instance,
                                     tileset,
+                                    &mut current_atlas,
                                     tileset_definition,
                                     asset_server,
                                     texture_atlases,

@@ -3,6 +3,7 @@
 
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 use bevy_rapier2d::prelude::*;
 
@@ -26,6 +27,7 @@ fn main() {
             set_clear_color: SetClearColor::FromLevelBackground,
             ..Default::default()
         })
+        .add_plugin(WorldInspectorPlugin)
         .add_startup_system(systems::setup)
         .add_system(systems::spawn_wall_collision)
         .add_system(systems::movement)

@@ -12,7 +12,7 @@ use std::{collections::HashMap, marker::PhantomData};
 /// [Component]: bevy::prelude::Component
 /// [SpriteBundle]: bevy::prelude::SpriteBundle
 /// [SpriteSheetBundle]: bevy::prelude::SpriteSheetBundle
-/// [TextureAtlas]: bevy::prelude::TextureAtlas
+/// [TextureAtlas>]: bevy::prelude::TextureAtlas
 ///
 /// Provides a constructor which can be used for spawning entities from an LDtk file.
 ///
@@ -104,13 +104,13 @@ use std::{collections::HashMap, marker::PhantomData};
 /// There are two forms for this attribute:
 /// - `#[sprite_sheet_bundle("path/to/asset.png", tile_width, tile_height, columns, rows, padding,
 /// offset, index)]` will create the field using all of the information provided.
-/// Similar to using [TextureAtlas::from_grid()].
+/// Similar to using [TextureAtlas>::from_grid()].
 /// - `#[sprite_sheet_bundle]` will create the field using information from the LDtk Editor visual,
 /// if it has one.
 /// - `#[sprite_sheet_bundle(no_grid)]` will create the field using information from the LDtk
 /// Editor visual, if it has one, but without using a grid. Instead a single texture will be used.
 /// This may be useful if the LDtk entity's visual uses a rectangle of tiles from its tileset,
-/// but will prevent using the generated [TextureAtlas] for animation purposes.
+/// but will prevent using the generated [TextureAtlas>] for animation purposes.
 /// ```
 /// # use bevy::prelude::*;
 /// # use bevy_ecs_ldtk::prelude::*;
@@ -305,6 +305,7 @@ pub trait LdtkEntity {
         entity_instance: &EntityInstance,
         layer_instance: &LayerInstance,
         tileset: Option<&Handle<Image>>,
+        atlas: &mut Option<Handle<TextureAtlas>>,
         tileset_definition: Option<&TilesetDefinition>,
         asset_server: &AssetServer,
         texture_atlases: &mut Assets<TextureAtlas>,
@@ -316,6 +317,7 @@ impl LdtkEntity for EntityInstanceBundle {
         entity_instance: &EntityInstance,
         _: &LayerInstance,
         _: Option<&Handle<Image>>,
+        _: &mut Option<Handle<TextureAtlas>>,
         _: Option<&TilesetDefinition>,
         _: &AssetServer,
         _: &mut Assets<TextureAtlas>,
@@ -331,6 +333,7 @@ impl LdtkEntity for SpriteBundle {
         _: &EntityInstance,
         _: &LayerInstance,
         tileset: Option<&Handle<Image>>,
+        _: &mut Option<Handle<TextureAtlas>>,
         _: Option<&TilesetDefinition>,
         _: &AssetServer,
         _: &mut Assets<TextureAtlas>,
@@ -344,6 +347,7 @@ impl LdtkEntity for SpriteSheetBundle {
         entity_instance: &EntityInstance,
         _: &LayerInstance,
         tileset: Option<&Handle<Image>>,
+        atlas: &mut Option<Handle<TextureAtlas>>,
         tileset_definition: Option<&TilesetDefinition>,
         _: &AssetServer,
         texture_atlases: &mut Assets<TextureAtlas>,
@@ -351,6 +355,7 @@ impl LdtkEntity for SpriteSheetBundle {
         utils::sprite_sheet_bundle_from_entity_info(
             entity_instance,
             tileset,
+            atlas,
             tileset_definition,
             texture_atlases,
             true,
@@ -363,6 +368,7 @@ impl LdtkEntity for Worldly {
         entity_instance: &EntityInstance,
         _: &LayerInstance,
         _: Option<&Handle<Image>>,
+        _: &mut Option<Handle<TextureAtlas>>,
         _: Option<&TilesetDefinition>,
         _: &AssetServer,
         _: &mut Assets<TextureAtlas>,
@@ -376,6 +382,7 @@ impl LdtkEntity for GridCoords {
         entity_instance: &EntityInstance,
         layer_instance: &LayerInstance,
         _: Option<&Handle<Image>>,
+        _: &mut Option<Handle<TextureAtlas>>,
         _: Option<&TilesetDefinition>,
         _: &AssetServer,
         _: &mut Assets<TextureAtlas>,
@@ -405,6 +412,7 @@ pub trait PhantomLdtkEntityTrait {
         entity_instance: &EntityInstance,
         layer_instance: &LayerInstance,
         tileset: Option<&Handle<Image>>,
+        atlas: &mut Option<Handle<TextureAtlas>>,
         tileset_definition: Option<&TilesetDefinition>,
         asset_server: &AssetServer,
         texture_atlases: &mut Assets<TextureAtlas>,
@@ -418,6 +426,7 @@ impl<B: LdtkEntity + Bundle> PhantomLdtkEntityTrait for PhantomLdtkEntity<B> {
         entity_instance: &EntityInstance,
         layer_instance: &LayerInstance,
         tileset: Option<&Handle<Image>>,
+        atlas: &mut Option<Handle<TextureAtlas>>,
         tileset_definition: Option<&TilesetDefinition>,
         asset_server: &AssetServer,
         texture_atlases: &mut Assets<TextureAtlas>,
@@ -426,6 +435,7 @@ impl<B: LdtkEntity + Bundle> PhantomLdtkEntityTrait for PhantomLdtkEntity<B> {
             entity_instance,
             layer_instance,
             tileset,
+            atlas,
             tileset_definition,
             asset_server,
             texture_atlases,
